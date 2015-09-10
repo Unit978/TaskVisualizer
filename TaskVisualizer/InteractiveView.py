@@ -35,8 +35,6 @@ class InteractiveView (QGraphicsView):
 
         if self._doMousePanning:
 
-            print event.pos(), " ", self._prevMousePos
-
             mouse_delta = self.mapToScene(event.pos()) - self.mapToScene(self._prevMousePos)
             mouse_delta *= self.panSpeed
             mouse_delta *= self.currentScale
@@ -54,7 +52,7 @@ class InteractiveView (QGraphicsView):
 
         self._prevMousePos = event.pos()
 
-    def mousePressEvenwhat(self, event):
+    def mousePressEvent(self, event):
         super(InteractiveView, self).mousePressEvent(event)
 
         if event.button() == self.panningButton:
