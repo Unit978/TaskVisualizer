@@ -78,8 +78,6 @@ class Visualizer:
             # Setup the name of the task.
             item.set_name(p[NAME_INDEX])
 
-            print p[USER_INDEX]
-
             if p[USER_INDEX] == USER_NAME:
                 item.setBrush(QBrush(Qt.red))
 
