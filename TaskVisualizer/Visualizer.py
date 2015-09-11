@@ -74,13 +74,19 @@ class Visualizer:
 
             item.setRect(QRectF(x, y, diameter, diameter))
 
+            # Setup the name of the task.
+            item.textItem.setPlainText(p[NAME_INDEX])
+            x_text = x + item.boundingRect().width()/2 - item.textItem.boundingRect().height()/2
+            y_text = y + 100 + item.textItem.boundingRect().width() + diameter
+            item.textItem.setPos(x_text, y_text)
+
             if p[USER_INDEX] == USER_NAME:
                 item.setBrush(QBrush(Qt.red))
 
             else:
                 item.setBrush(QBrush(Qt.cyan))
 
-            x += diameter + 5
+            x += diameter + 15
 
         # Update the scene so it can repaint properly
         self.scene.update()
