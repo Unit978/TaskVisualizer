@@ -11,7 +11,7 @@ def main():
 
     w = MainWindow()
     w.setWindowTitle("Task Visualizer")
-    w.resize(900, 500)
+    w.resize(1000, 500)
 
     visualizer = Visualizer(w.scene)
     visualizer.update()

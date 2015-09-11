@@ -26,6 +26,29 @@ class InteractiveView (QGraphicsView):
         self._doMousePanning = False
         self._doKeyZooming = False
 
+    def pan(self, delta):
+
+        # Move the center of the view to simulate panning.
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+
+        x_center = self.viewport().rect().width()/2 - delta.x()
+        y_center = self.viewport().rect().height()/2 - delta.y()
+        center = QPoint(x_center, y_center)
+        self.centerOn(self.mapToScene(center))
+
+        # Set view anchor to zoom from the center of the view.
+        self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
+
+    def zoom(self, scale_factor):
+        self.scale(scale_factor, scale_factor)
+        self.currentScale *= scale_factor
+
+    def zoom_in(self):
+        self.zoom(1.0 + self.zoomDelta)
+
+    def zoom_out(self):
+        self.zoom(1.0 - self.zoomDelta)
+
     def keyPressEvent(self, event):
 
         # Enable zooming.
@@ -57,16 +80,7 @@ class InteractiveView (QGraphicsView):
             mouse_delta *= self.panSpeed
             mouse_delta *= self.currentScale
 
-            # Move the center of the view to simulate panning.
-            self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
-            x_center = self.viewport().rect().width()/2 - mouse_delta.x()
-            y_center = self.viewport().rect().height()/2 - mouse_delta.y()
-            center = QPoint(x_center, y_center)
-            self.centerOn(self.mapToScene(center))
-
-            # Set view anchor to zoom from the center of the view.
-            self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
+            self.pan(mouse_delta)
 
         self._prevMousePos = event.pos()
 
@@ -83,12 +97,10 @@ class InteractiveView (QGraphicsView):
         if event.button() == self.panningButton:
             self._doMousePanning = False
 
-    def zoom(self, scale_factor):
-        self.scale(scale_factor, scale_factor)
-        self.currentScale *= scale_factor
+    def wheelEvent(self, event):
+        super(InteractiveView, self).wheelEvent(event)
 
-    def zoom_in(self):
-        self.zoom(1.0 + self.zoomDelta)
+        scroll_amount = event.delta()
 
-    def zoom_out(self):
-        self.zoom(1.0 - self.zoomDelta)
+        # Apply zooming base on scroll direction.
+        self.zoom_in() if scroll_amount > 0 else self.zoom_out()
