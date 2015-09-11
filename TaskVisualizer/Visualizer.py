@@ -67,7 +67,7 @@ class Visualizer:
             item = self.get_task_graphics_item()
 
             # CPU %
-            diameter = p[CPU_INDEX] * self.cpu_scale + 1
+            diameter = p[CPU_INDEX] * self.cpu_scale + 2
 
             # MEM %
             y = p[MEM_INDEX] / 100.0 * self.mem_scale
