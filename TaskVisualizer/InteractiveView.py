@@ -99,7 +99,6 @@ class InteractiveView (QGraphicsView):
             self._doMousePanning = False
 
     def wheelEvent(self, event):
-   #     super(InteractiveView, self).wheelEvent(event)
 
         scroll_amount = event.delta()
 

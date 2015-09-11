@@ -32,8 +32,9 @@ class Visualizer:
         self.scene = scene
 
         for i in range(0, 200):
-            self.add_new(False)
+            self.add_new_task_graphics_item(False)
 
+    # Collect data about the running processes, such as name, id, cpu%, ...
     @staticmethod
     def get_processes_data():
 
@@ -42,8 +43,6 @@ class Visualizer:
         for p in process_iter():
 
             username = "N/A"
-
-            # Collect the data about the process, such as id, cpu%, ...
             try:
                 username = re.split(r"[/\\]", p.username())[-1]
 
@@ -57,8 +56,6 @@ class Visualizer:
     def update(self):
 
         self.deactivate_all()
-
-        # Get the updated processes data
         processes = Visualizer.get_processes_data()
 
         # Update the graphical representations
@@ -89,14 +86,14 @@ class Visualizer:
         # Update the scene so it can repaint properly
         self.scene.update()
 
-        # Update at every second
+        # Update at every second.
         QTimer.singleShot(1000.0, self.update)
 
     def get_task_graphics_item(self):
 
-        # Not enough
+        # Add more graphic items if there isn't enough in the pool.
         if self._taskItemsCounter >= len(self.taskItemsPool):
-            self.add_new()
+            self.add_new_task_graphics_item()
 
         item = self.taskItemsPool[self._taskItemsCounter]
         item.setVisible(True)
@@ -108,7 +105,7 @@ class Visualizer:
             item.setVisible(False)
         self._taskItemsCounter = 0
 
-    def add_new(self, visible=True):
+    def add_new_task_graphics_item(self, visible=True):
         item = TaskGraphicsItem()
         item.setVisible(visible)
         self.taskItemsPool.append(item)
