@@ -50,6 +50,7 @@ class InteractiveView (QGraphicsView):
         self.zoom(1.0 - self.zoomDelta)
 
     def keyPressEvent(self, event):
+        super(QGraphicsView, self).keyPressEvent(event)
 
         # Enable zooming.
         if event.key() == self.zoomKey:
