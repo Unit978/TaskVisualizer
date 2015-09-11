@@ -51,16 +51,18 @@ class InteractiveView (QGraphicsView):
 
     def keyPressEvent(self, event):
 
+        key = event.key()
+
         # Enable zooming.
-        if event.key() == self.zoomKey:
+        if key == self.zoomKey:
             self._doKeyZooming = True
 
         # Apply Zooming.
         if self._doKeyZooming:
-            if event.key() == Qt.Key_Up:
+            if key == Qt.Key_Up:
                 self.zoom_in()
 
-            elif event.key() == Qt.Key_Down:
+            elif key == Qt.Key_Down:
                 self.zoom_out()
 
         # Apply Panning.

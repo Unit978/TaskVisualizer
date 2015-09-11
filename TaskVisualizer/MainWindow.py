@@ -1,6 +1,7 @@
 __author__ = 'unit978'
 
 from PyQt4.QtGui import QMainWindow, QGraphicsScene
+from PyQt4.QtCore import Qt
 from InteractiveView import InteractiveView
 
 INT_MIN = -2147483647 - 1
@@ -24,3 +25,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.view)
         self.view.setSceneRect(INT_MIN/2, INT_MIN/2, INT_MAX, INT_MAX)
         self.view.centerOn(0, 0)
+
+    def keyPressEvent(self, event):
+        super(MainWindow, self).keyPressEvent(event)
+
+        # Quit via escape key.
+        if event.key() == Qt.Key_Escape:
+            self.close()
