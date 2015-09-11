@@ -1,6 +1,7 @@
 __author__ = 'unit978'
 
 import getpass
+import re
 from psutil import process_iter, AccessDenied
 from TaskGraphicsItem import TaskGraphicsItem
 from PyQt4.QtCore import QRectF, QTimer
@@ -14,7 +15,7 @@ CPU_INDEX = 2
 MEM_INDEX = 3
 USER_INDEX = 4
 
-USER_NAME = getpass.getuser().split('/\\')[-1]
+USER_NAME = getpass.getuser()
 
 
 class Visualizer:
@@ -44,7 +45,7 @@ class Visualizer:
 
             # Collect the data about the process, such as id, cpu%, ...
             try:
-                username = p.username()
+                username = re.split(r"[/\\]", p.username())[-1]
 
             except AccessDenied:
                 pass
@@ -76,6 +77,8 @@ class Visualizer:
 
             # Setup the name of the task.
             item.set_name(p[NAME_INDEX])
+
+            print p[USER_INDEX]
 
             if p[USER_INDEX] == USER_NAME:
                 item.setBrush(QBrush(Qt.red))
