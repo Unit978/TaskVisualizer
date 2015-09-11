@@ -27,8 +27,8 @@ class InteractiveView (QGraphicsView):
         self._doKeyZooming = False
 
     def pan(self, delta):
-
         # Move the center of the view to simulate panning.
+
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
         x_center = self.viewport().rect().width()/2 - delta.x()
@@ -50,7 +50,6 @@ class InteractiveView (QGraphicsView):
         self.zoom(1.0 - self.zoomDelta)
 
     def keyPressEvent(self, event):
-        super(QGraphicsView, self).keyPressEvent(event)
 
         # Enable zooming.
         if event.key() == self.zoomKey:
