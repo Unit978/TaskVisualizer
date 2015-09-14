@@ -12,9 +12,6 @@ class InteractiveView (QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        # Set a dark background color
-        self.setBackgroundBrush(QBrush(QColor(50, 50, 80)))
-
         self.zoomDelta = 0.1
         self.currentScale = 1.0
 

@@ -9,6 +9,8 @@ from PyQt4.QtGui import QBrush
 
 from PyQt4.QtCore import Qt
 
+import platform
+
 PID_INDEX = 0
 NAME_INDEX = 1
 CPU_INDEX = 2
@@ -16,6 +18,13 @@ MEM_INDEX = 3
 USER_INDEX = 4
 
 USER_NAME = getpass.getuser()
+
+# Check system
+if platform.system().lower() == "linux":
+    ROOT_NAME = "root"
+
+else:
+    ROOT_NAME = "---"
 
 
 class Visualizer:
@@ -30,6 +39,13 @@ class Visualizer:
         self.mem_scale = 1000
 
         self.scene = scene
+
+        self.userTaskColor = Qt.red
+        self.rootTaskColor = Qt.darkGray
+        self.otherTaskColor = Qt.cyan
+
+        # Spacing between each task graphical item
+        self.taskItemSpacing = 15
 
         for i in range(0, 200):
             self.add_new_task_graphics_item(False)
@@ -76,12 +92,18 @@ class Visualizer:
             item.set_name(p[NAME_INDEX])
 
             if p[USER_INDEX] == USER_NAME:
-                item.setBrush(QBrush(Qt.red))
+                item.setBrush(QBrush(self.userTaskColor))
+                item.textItem.setDefaultTextColor(Qt.white)
+
+            elif p[USER_INDEX] == ROOT_NAME:
+                item.setBrush(QBrush(self.rootTaskColor))
+                item.textItem.setDefaultTextColor(self.rootTaskColor)
 
             else:
-                item.setBrush(QBrush(Qt.cyan))
+                item.setBrush(QBrush(self.otherTaskColor))
+                item.textItem.setDefaultTextColor(Qt.white)
 
-            x += diameter + 15
+            x += diameter + self.taskItemSpacing
 
         # Update the scene so it can repaint properly
         self.scene.update()
