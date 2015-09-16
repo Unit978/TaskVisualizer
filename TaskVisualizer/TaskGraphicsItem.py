@@ -1,7 +1,8 @@
 __author__ = 'unit978'
 
 from PyQt4.QtGui import QGraphicsEllipseItem, QGraphicsTextItem, QPen, QColor
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QPointF, QRectF
+from MathUtil import lerp
 
 
 class TaskGraphicsItem (QGraphicsEllipseItem):
@@ -19,7 +20,10 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
         self.textItem.setParentItem(self)
         self.textItem.rotate(-90)
         self.textItem.setDefaultTextColor(QColor(255, 255, 255))
-        # self.textItem.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+
+        # The dimensions to reach via LERP.
+        self.targetPos = QPointF()
+        self.targetDiameter = 1
 
     def set_name(self, str_name):
         self.textItem.setPlainText(str_name)
@@ -35,3 +39,10 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
 
     def mousePressEvent(self, event):
         print "Clicked On Ellipse at: ", self.rect().topLeft()
+
+    def update(self):
+
+        pos = lerp(self.rect().topLeft(), self.targetPos, 1)
+        radius = lerp(self.rect().width(), self.targetDiameter, 0.001)
+
+        self.setRect(QRectF(pos.x(), pos.y(), radius, radius))

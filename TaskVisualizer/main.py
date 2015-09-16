@@ -14,10 +14,9 @@ def main():
     w.resize(1000, 500)
 
     visualizer = Visualizer(w.scene)
-    visualizer.update()
+    visualizer.update_processes_data()
 
     # Set a dark background color
-    # backColor = QColor(50, 50, 80)
     back_color = QColor(25, 20, 45)
     w.view.setBackgroundBrush(QBrush(back_color))
 

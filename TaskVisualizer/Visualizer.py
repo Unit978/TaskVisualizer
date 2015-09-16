@@ -1,15 +1,13 @@
 __author__ = 'unit978'
 
 import getpass
-import re
-from psutil import process_iter, AccessDenied
-from TaskGraphicsItem import TaskGraphicsItem
-from PyQt4.QtCore import QRectF, QTimer
-from PyQt4.QtGui import QBrush
-
-from PyQt4.QtCore import Qt
-
 import platform
+
+from TaskGraphicsItem import TaskGraphicsItem
+from StateManager import StateManager
+
+from PyQt4.QtCore import Qt, QRectF, QPointF, SIGNAL, QTimer
+from PyQt4.QtGui import QBrush
 
 PID_INDEX = 0
 NAME_INDEX = 1
@@ -45,34 +43,24 @@ class Visualizer:
         self.otherTaskColor = Qt.cyan
 
         # Spacing between each task graphical item
-        self.taskItemSpacing = 15
+        self.taskItemSpacing = 20
+
+        self.updateProcessDataTimer = QTimer()
+        self.updateProcessDataTimer.timeout.connect(self.update_processes_data)
+
+        self.updateItemsTimer = QTimer()
+        self.updateItemsTimer.timeout.connect(self.update_items)
 
         for i in range(0, 200):
             self.add_new_task_graphics_item(False)
 
-    # Collect data about the running processes, such as name, id, cpu%, ...
-    @staticmethod
-    def get_processes_data():
+        self.updateProcessDataTimer.start(1000.0)
+        #self.updateItemsTimer.start(1.0)
 
-        process_list = list()
-
-        for p in process_iter():
-
-            username = "N/A"
-            try:
-                username = re.split(r"[/\\]", p.username())[-1]
-
-            except AccessDenied:
-                pass
-
-            process_list.append([p.pid, p.name(), p.cpu_percent(), p.memory_percent(), username])
-
-        return process_list
-
-    def update(self):
+    def update_processes_data(self):
 
         self.deactivate_all()
-        processes = Visualizer.get_processes_data()
+        processes = StateManager.get_processes_data()
 
         # Update the graphical representations
         x = 0
@@ -87,6 +75,9 @@ class Visualizer:
             y = p[MEM_INDEX] / 100.0 * self.mem_scale
 
             item.setRect(QRectF(x, y, diameter, diameter))
+
+            #item.targetPos = QPointF(x, y)
+            #item.targetRadius = diameter
 
             # Setup the name of the task.
             item.set_name(p[NAME_INDEX])
@@ -108,8 +99,10 @@ class Visualizer:
         # Update the scene so it can repaint properly
         self.scene.update()
 
-        # Update at every second.
-        QTimer.singleShot(1000.0, self.update)
+    def update_items(self):
+        for item in self.taskItemsPool:
+            if item.isVisible():
+                item.update()
 
     def get_task_graphics_item(self):
 
