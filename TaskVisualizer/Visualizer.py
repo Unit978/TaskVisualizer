@@ -6,7 +6,7 @@ import platform
 from TaskGraphicsItem import TaskGraphicsItem
 from StateManager import StateManager
 
-from PyQt4.QtCore import Qt, QRectF, QPointF, SIGNAL, QTimer
+from PyQt4.QtCore import Qt, QRectF, QPointF, QTimer
 from PyQt4.QtGui import QBrush
 
 PID_INDEX = 0
@@ -45,6 +45,8 @@ class Visualizer:
         # Spacing between each task graphical item
         self.taskItemSpacing = 20
 
+        self.showRootTasks = False
+
         self.updateProcessDataTimer = QTimer()
         self.updateProcessDataTimer.timeout.connect(self.update_processes_data)
 
@@ -55,7 +57,7 @@ class Visualizer:
             self.add_new_task_graphics_item(False)
 
         self.updateProcessDataTimer.start(1000.0)
-        #self.updateItemsTimer.start(1.0)
+        self.updateItemsTimer.start(50.0)
 
     def update_processes_data(self):
 
@@ -66,18 +68,30 @@ class Visualizer:
         x = 0
         for p in processes:
 
+            if p[USER_INDEX] == ROOT_NAME and not self.showRootTasks:
+                continue
+
             item = self.get_task_graphics_item()
 
             # CPU %
-            diameter = p[CPU_INDEX] * self.cpu_scale + 2
+            new_diameter = p[CPU_INDEX] * self.cpu_scale + 2
 
             # MEM %
             y = p[MEM_INDEX] / 100.0 * self.mem_scale
 
-            item.setRect(QRectF(x, y, diameter, diameter))
+            # item.setRect(QRectF(x, y, new_diameter, new_diameter))
 
-            #item.targetPos = QPointF(x, y)
-            #item.targetRadius = diameter
+            pos = item.rect().topLeft()
+            diameter = item.rect().width()
+            item.setRect(QRectF(pos.x(), pos.y(), diameter, diameter))
+
+            # Set position bounds.
+            item.startPos = pos
+            item.endPos = QPointF(x, y)
+
+            # Setup diameter bounds.
+            item.startDiameter = diameter
+            item.endDiameter = new_diameter
 
             # Setup the name of the task.
             item.set_name(p[NAME_INDEX])
@@ -94,7 +108,7 @@ class Visualizer:
                 item.setBrush(QBrush(self.otherTaskColor))
                 item.textItem.setDefaultTextColor(Qt.white)
 
-            x += diameter + self.taskItemSpacing
+            x += new_diameter + self.taskItemSpacing
 
         # Update the scene so it can repaint properly
         self.scene.update()
@@ -102,7 +116,7 @@ class Visualizer:
     def update_items(self):
         for item in self.taskItemsPool:
             if item.isVisible():
-                item.update()
+                item.update(self.updateItemsTimer.interval(), float(self.updateProcessDataTimer.interval()))
 
     def get_task_graphics_item(self):
 
@@ -121,7 +135,7 @@ class Visualizer:
         self._taskItemsCounter = 0
 
     def add_new_task_graphics_item(self, visible=True):
-        item = TaskGraphicsItem()
+        item = TaskGraphicsItem(QRectF(0, 0, 1, 1))
         item.setVisible(visible)
         self.taskItemsPool.append(item)
         self.scene.addItem(item)

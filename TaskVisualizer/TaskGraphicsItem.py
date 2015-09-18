@@ -2,7 +2,6 @@ __author__ = 'unit978'
 
 from PyQt4.QtGui import QGraphicsEllipseItem, QGraphicsTextItem, QPen, QColor
 from PyQt4.QtCore import Qt, QPointF, QRectF
-from MathUtil import lerp
 
 
 class TaskGraphicsItem (QGraphicsEllipseItem):
@@ -22,11 +21,18 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
         self.textItem.setDefaultTextColor(QColor(255, 255, 255))
 
         # The dimensions to reach via LERP.
-        self.targetPos = QPointF()
-        self.targetDiameter = 1
+        self.startPos = QPointF(0, 0)
+        self.endPos = QPointF(0, 0)
+        self.startDiameter = 1
+        self.endDiameter = 1
+
+    def mousePressEvent(self, event):
+        print "Clicked On Ellipse at: ", self.rect().topLeft()
 
     def set_name(self, str_name):
         self.textItem.setPlainText(str_name)
+
+    def update_name_pos(self):
 
         rect = self.boundingRect()
         text_rect = self.textItem.boundingRect()
@@ -37,12 +43,24 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
 
         self.textItem.setPos(x_text, y_text)
 
-    def mousePressEvent(self, event):
-        print "Clicked On Ellipse at: ", self.rect().topLeft()
+    # Time elapsed is in seconds.
+    def update(self, item_update_interval, processes_update_interval):
 
-    def update(self):
+        time_step = item_update_interval / processes_update_interval
 
-        pos = lerp(self.rect().topLeft(), self.targetPos, 1)
-        radius = lerp(self.rect().width(), self.targetDiameter, 0.001)
+        diameter = self.rect().width() + self.lerp_rate(self.startDiameter, self.endDiameter, time_step)
+        if diameter <= 1:
+            diameter = 1
 
-        self.setRect(QRectF(pos.x(), pos.y(), radius, radius))
+        pos = self.rect().topLeft()
+
+        x = pos.x() + self.lerp_rate(self.startPos.x(), self.endPos.x(), time_step)
+        y = pos.y() + self.lerp_rate(self.startPos.y(), self.endPos.y(), time_step)
+
+        self.setRect(QRectF(x, y, diameter, diameter))
+        self.update_name_pos()
+
+    # Return the linear interpolation rate. Reach start to end at a rate of 'growth rate'
+    @staticmethod
+    def lerp_rate(start, end, time_step):
+        return (end - start) * time_step
