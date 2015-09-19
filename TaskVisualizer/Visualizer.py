@@ -22,7 +22,7 @@ if platform.system().lower() == "linux":
     ROOT_NAME = "root"
 
 else:
-    ROOT_NAME = "---"
+    ROOT_NAME = "SYSTEM"
 
 
 class Visualizer:
