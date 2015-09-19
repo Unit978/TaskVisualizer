@@ -1,28 +1,10 @@
 __author__ = 'unit978'
 
-import getpass
-import platform
-
 from TaskGraphicsItem import TaskGraphicsItem
-from StateManager import StateManager
+from StateManager import *
 
 from PyQt4.QtCore import Qt, QRectF, QPointF, QTimer
 from PyQt4.QtGui import QBrush, QPen, QGraphicsLineItem
-
-PID_INDEX = 0
-NAME_INDEX = 1
-CPU_INDEX = 2
-MEM_INDEX = 3
-USER_INDEX = 4
-
-USER_NAME = getpass.getuser()
-
-# Check system
-if platform.system().lower() == "linux":
-    ROOT_NAME = "root"
-
-else:
-    ROOT_NAME = "SYSTEM"
 
 
 class Visualizer:
@@ -37,7 +19,7 @@ class Visualizer:
         self._taskItemsCounter = 0
 
         # Scales the visualization dimension for cpu%.
-        self.cpuScale = 4.0
+        self.cpuScale = 2.0
 
         # Setup memory axis visualization.
         self.memAxisLen = 1000
@@ -67,7 +49,7 @@ class Visualizer:
             self.add_new_task_graphics_item(False)
 
         self.updateProcessDataTimer.start(1000.0)
-        self.updateItemsTimer.start(80.0)
+        self.updateItemsTimer.start(50.0)
 
     def update_processes_data(self):
 

@@ -1,7 +1,28 @@
 __author__ = 'unit978'
 
 import re
+import getpass
+import platform
 from psutil import process_iter, AccessDenied
+
+PID_INDEX = 0
+NAME_INDEX = 1
+CPU_INDEX = 2
+MEM_INDEX = 3
+USER_INDEX = 4
+
+USER_NAME = getpass.getuser()
+
+# Check system
+systemName = platform.system().lower()
+if systemName == "linux":
+    ROOT_NAME = "root"
+
+elif systemName == "windows":
+    ROOT_NAME = "SYSTEM"
+
+else:
+    ROOT_NAME = "---"
 
 
 # Gets the state of the machine (the running processes).
@@ -22,6 +43,10 @@ class StateManager:
         process_list = list()
 
         for p in process_iter():
+
+            # Skip System Idle Process for Windows.
+            if p.pid == 0 and systemName == "windows":
+                continue
 
             username = "N/A"
             try:
