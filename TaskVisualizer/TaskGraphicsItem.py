@@ -43,10 +43,8 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
 
         self.textItem.setPos(x_text, y_text)
 
-    # Time elapsed is in seconds.
-    def update(self, item_update_interval, processes_update_interval):
-
-        time_step = item_update_interval / processes_update_interval
+    # Time step is in seconds.
+    def update(self, time_step):
 
         diameter = self.rect().width() + self.lerp_rate(self.startDiameter, self.endDiameter, time_step)
         if diameter <= 1:
