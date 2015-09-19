@@ -89,6 +89,9 @@ class Visualizer:
             # MEM %
             y = p[MEM_INDEX] / 100.0 * self.memAxisLen
 
+            # Center around on y-component.
+            y -= new_diameter / 2.0
+
             # item.setRect(QRectF(x, y, new_diameter, new_diameter))
 
             pos = item.rect().topLeft()
@@ -165,3 +168,8 @@ class Visualizer:
 
         for y in range(step, self.memAxisLen + step, step):
             self.scene.addLine(self.memXOffset, y, 2500.0, y, pen)
+
+    def update_mem_axis(self):
+
+        # Set Length of line to the x value of the last active task item.
+        pass
