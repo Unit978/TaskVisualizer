@@ -1,6 +1,6 @@
 __author__ = 'unit978'
 
-from PyQt4.QtGui import QGraphicsEllipseItem, QGraphicsTextItem, QPen, QColor
+from PyQt4.QtGui import QGraphicsEllipseItem, QGraphicsTextItem, QPen, QBrush, QColor
 from PyQt4.QtCore import Qt, QPointF, QRectF
 
 
@@ -25,6 +25,11 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
         self.endPos = QPointF(0, 0)
         self.startDiameter = 1
         self.endDiameter = 1
+
+        self.centerMark = QGraphicsEllipseItem()
+        self.centerMark.setBrush(QBrush(Qt.white))
+        self.centerMark.setPen(QPen(Qt.NoPen))
+        self.centerMark.setParentItem(self)
 
     def mousePressEvent(self, event):
         print "Clicked On Ellipse at: ", self.rect().topLeft()
@@ -57,6 +62,28 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
 
         self.setRect(QRectF(x, y, diameter, diameter))
         self.update_name_pos()
+        self.update_center_mark()
+
+    def update_center_mark(self):
+        scale = self.scene().views()[0].currentScale
+
+        hwidth = self.rect().width() / 2.0
+        diam = 2.0 / scale
+
+        # Only mark center for large enough items.
+        if hwidth * 0.2 > diam:
+
+            self.centerMark.setVisible(True)
+
+            hdiam = diam / 2.0
+            pos = self.rect().topLeft()
+
+            x = pos.x() - hdiam + hwidth
+            y = pos.y() - hdiam + hwidth
+            self.centerMark.setRect(QRectF(x, y, diam, diam))
+
+        else:
+            self.centerMark.setVisible(False)
 
     # Return the linear interpolation rate. Reach start to end at a rate of 'growth rate'
     @staticmethod
