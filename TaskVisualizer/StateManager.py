@@ -31,9 +31,6 @@ class StateManager:
 
     def __init__(self):
 
-        # The amount of seconds to update the processes data.
-        self.update_interval = 1.0
-
         self.process_data = ""
 
     # Collect data about the running processes, such as name, id, cpu%, ...

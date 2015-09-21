@@ -13,10 +13,9 @@ class Visualizer:
 
         self.scene = scene
 
-        self.taskItemsPool = list()
-
-        # To determine which item to get from the pool of taskItems
-        self._taskItemsCounter = 0
+        self.taskItemPool = list()
+        self.activeItems = list()
+        self.taskItemPids = dict()
 
         # Scales the visualization dimension for cpu%.
         self.cpuScale = 2.0
@@ -53,7 +52,11 @@ class Visualizer:
 
     def update_processes_data(self):
 
-        self.deactivate_all()
+        # Reset USED flag in order to determine which task items are unused. This
+        # will happen when an item's process does not exist anymore.
+        for item in self.activeItems:
+            item.used = False
+
         processes = StateManager.get_processes_data()
 
         # Update the graphical representations
@@ -63,7 +66,29 @@ class Visualizer:
             if p[USER_INDEX] == ROOT_NAME and not self.showRootTasks:
                 continue
 
-            item = self.get_task_graphics_item()
+            pid = p[PID_INDEX]
+
+            # Pid still exists.
+            if pid in self.taskItemPids:
+
+                item = self.taskItemPids[pid]
+
+                # Check if PID returned after it ended. This means that the mapped
+                # item MAY be associated with another process.
+                if item is None or item.pid != pid:
+                    item = self.fetch_task_item()
+                    self.taskItemPids[pid] = item
+                    item.pid = pid
+
+                # ELSE: reuse item, the process returned continuously.
+                item.used = True
+
+            # Pid not in dictionary, Add task item.
+            else:
+                item = self.fetch_task_item()
+                self.taskItemPids[pid] = item
+                item.pid = pid
+                item.used = True
 
             # CPU %
             new_diameter = p[CPU_INDEX] * self.cpuScale + 2
@@ -74,11 +99,8 @@ class Visualizer:
             # Center around on y-component.
             y -= new_diameter / 2.0
 
-            # item.setRect(QRectF(x, y, new_diameter, new_diameter))
-
             pos = item.rect().topLeft()
             diameter = item.rect().width()
-            item.setRect(QRectF(pos.x(), pos.y(), diameter, diameter))
 
             # Set position bounds.
             item.startPos = pos
@@ -87,6 +109,8 @@ class Visualizer:
             # Setup diameter bounds.
             item.startDiameter = diameter
             item.endDiameter = new_diameter
+
+            x += new_diameter + self.taskItemSpacing
 
             # Setup the name of the task.
             item.set_name(p[NAME_INDEX])
@@ -103,7 +127,7 @@ class Visualizer:
                 item.setBrush(QBrush(self.otherTaskColor))
                 item.textItem.setDefaultTextColor(Qt.white)
 
-            x += new_diameter + self.taskItemSpacing
+        self.recycle_unused_items()
 
         # Update the scene so it can repaint properly
         self.scene.update()
@@ -112,30 +136,40 @@ class Visualizer:
 
         time_step = self.updateItemsTimer.interval() / float(self.updateProcessDataTimer.interval())
 
-        for item in self.taskItemsPool:
-            if item.isVisible():
-                item.update(time_step)
+        for item in self.activeItems:
+            item.update(time_step)
 
-    def get_task_graphics_item(self):
+    def fetch_task_item(self):
 
         # Add more graphic items if there isn't enough in the pool.
-        if self._taskItemsCounter >= len(self.taskItemsPool):
+        if len(self.taskItemPool) == 0:
             self.add_new_task_graphics_item()
 
-        item = self.taskItemsPool[self._taskItemsCounter]
+        item = self.taskItemPool.pop()
         item.setVisible(True)
-        self._taskItemsCounter += 1
+
+        self.activeItems.append(item)
         return item
 
-    def deactivate_all(self):
-        for item in self.taskItemsPool:
-            item.setVisible(False)
-        self._taskItemsCounter = 0
+    def recycle_task_item(self, item):
+        item.setVisible(False)
+        self.taskItemPool.append(item)
+
+    # Items without an active process are recycled
+    def recycle_unused_items(self):
+
+        # Recycle unused.
+        for item in self.activeItems:
+            if not item.used:
+                self.recycle_task_item(item)
+
+        # Only keep the used items.
+        self.activeItems = [item for item in self.activeItems if item.used]
 
     def add_new_task_graphics_item(self, visible=True):
         item = TaskGraphicsItem(QRectF(0, 0, 1, 1))
         item.setVisible(visible)
-        self.taskItemsPool.append(item)
+        self.taskItemPool.append(item)
         self.scene.addItem(item)
 
     def setup_mem_axis(self):

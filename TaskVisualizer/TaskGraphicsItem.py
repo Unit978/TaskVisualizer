@@ -31,8 +31,16 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
         self.centerMark.setPen(QPen(Qt.NoPen))
         self.centerMark.setParentItem(self)
 
+        self.pid = -1
+
+        # To determine if it is associated with an active process.
+        self.used = False
+
     def mousePressEvent(self, event):
         print "Clicked On Ellipse at: ", self.rect().topLeft()
+
+    def set_pid(self, pid):
+        self.pid = pid
 
     def set_name(self, str_name):
         self.textItem.setPlainText(str_name)
