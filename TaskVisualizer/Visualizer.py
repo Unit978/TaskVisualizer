@@ -13,8 +13,13 @@ class Visualizer:
 
         self.scene = scene
 
+        # Pool of items to grab from when needed.
         self.taskItemPool = list()
+
+        # The items that are active and to be updated.
         self.activeItems = list()
+
+        # Dictionary of PIDs and an associated item to represent the process.
         self.taskItemPids = dict()
 
         # Scales the visualization dimension for cpu%.
@@ -75,12 +80,18 @@ class Visualizer:
 
                 # Check if PID returned after it ended. This means that the mapped
                 # item MAY be associated with another process.
-                if item is None or item.pid != pid:
+                if item.pid != pid:
                     item = self.fetch_task_item()
                     self.taskItemPids[pid] = item
                     item.pid = pid
 
+                # Remove from pool and add to active.
+                elif item in self.taskItemPool:
+                    self.taskItemPool.remove(item)
+                    self.activeItems.append(item)
+
                 # ELSE: reuse item, the process returned continuously.
+                item.setVisible(True)
                 item.used = True
 
             # Pid not in dictionary, Add task item.
@@ -147,8 +158,8 @@ class Visualizer:
 
         item = self.taskItemPool.pop()
         item.setVisible(True)
-
         self.activeItems.append(item)
+
         return item
 
     def recycle_task_item(self, item):

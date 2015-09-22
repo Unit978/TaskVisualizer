@@ -20,7 +20,7 @@ class TaskGraphicsItem (QGraphicsEllipseItem):
         self.textItem.rotate(-90)
         self.textItem.setDefaultTextColor(QColor(255, 255, 255))
 
-        # The dimensions to reach via LERP.
+        # The dimensions to reach via a LERP.
         self.startPos = QPointF(0, 0)
         self.endPos = QPointF(0, 0)
         self.startDiameter = 1
